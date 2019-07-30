@@ -1,6 +1,5 @@
 FROM ubuntu:18.04
 
-
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH
 ENV NB_USER keras
@@ -15,7 +14,7 @@ RUN apt-get update && \
 
 RUN mkdir -p $CONDA_DIR && \
     echo export PATH=$CONDA_DIR/bin:'$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet --output-document=anaconda.sh  https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh && \
+    wget --quiet --output-document=anaconda.sh  https://repo.anaconda.com/archive/Anaconda2-2019.07-Linux-x86_64.sh && \
     /bin/bash /anaconda.sh -f -b -p $CONDA_DIR && \
     rm anaconda.sh
 
@@ -35,5 +34,5 @@ VOLUME ["/src"]
 
 USER keras
 WORKDIR /src
-EXPOSE 8888 22
+EXPOSE 8888
 CMD jupyter notebook --port=8888 --ip=0.0.0.0
