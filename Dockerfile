@@ -1,37 +1,35 @@
 FROM ubuntu:18.04
 
-ENV CONDA_DIR /opt/conda
-ENV PATH $CONDA_DIR/bin:$PATH
-ENV NB_USER keras
-ENV NB_UID 1000
-ARG PY_VER=3.7
-ARG TENSORFLOW_VER=1.14
-ARG KERAS_VER=2.2.4
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
-RUN apt-get update && \
-    apt-get install -y wget git libhdf5-dev g++ graphviz openssh-server
+RUN apt-get update --fix-missing  && \
+    apt-get install -y wget git libhdf5-dev g++ graphviz openssh-server bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 && \
+    apt-get clean
 
 RUN mkdir -p $CONDA_DIR && \
-    echo export PATH=$CONDA_DIR/bin:'$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet --output-document=anaconda.sh  https://repo.anaconda.com/archive/Anaconda2-2019.07-Linux-x86_64.sh && \
-    /bin/bash /anaconda.sh -f -b -p $CONDA_DIR && \
-    rm anaconda.sh
+    wget --quiet https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh -O ~/anaconda.sh && \
+    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
+    rm ~/anaconda.sh && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc && \
+    find /opt/conda/ -follow -type f -name '*.a' -delete && \
+    find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
+    /opt/conda/bin/conda clean -afy
 
-RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
-    mkdir -p $CONDA_DIR && \
-    chown keras $CONDA_DIR -R && \
-    mkdir -p /src && \
-    chown keras /src
 
-RUN conda install -y python=${PY_VER} && \
+RUN mkdir -p /src && \
+    chown conda /src
+
+RUN conda install -y python=3.7 && \
     pip install --upgrade pip && \
-    pip install tensorflow==${TENSORFLOW_VER} && \
-    pip install keras==${KERAS_VER} && \
+    pip install tensorflow==1.14 && \
+    pip install keras==2.2.4 && \
     conda clean -yt
 
 VOLUME ["/src"]
 
-USER keras
+USER conda
 WORKDIR /src
 EXPOSE 8888
 CMD jupyter notebook --port=8888 --ip=0.0.0.0
