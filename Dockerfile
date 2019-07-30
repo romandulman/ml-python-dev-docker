@@ -8,7 +8,6 @@ ARG PY_VER=3.7
 ARG TENSORFLOW_VER=1.14
 ARG KERAS_VER=2.2.4
 
-
 RUN apt-get update && \
     apt-get install -y wget git libhdf5-dev g++ graphviz openssh-server
 
